@@ -22,7 +22,7 @@ public abstract class AbstractCamera<
     /**
      * parameters for avail for the cameraHolder
      */
-    protected P parametersHandler;
+    public P parametersHandler;
     /**
      * holds the current camera
      */

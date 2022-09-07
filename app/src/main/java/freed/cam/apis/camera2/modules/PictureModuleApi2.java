@@ -19,12 +19,15 @@
 
 package freed.cam.apis.camera2.modules;
 
+import static java.lang.Thread.sleep;
+
 import android.annotation.TargetApi;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.location.Location;
+import android.media.ImageReader;
 import android.os.Build.VERSION_CODES;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -34,6 +37,7 @@ import android.view.Surface;
 
 import com.troop.freedcam.R;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,7 +70,7 @@ import freed.settings.SettingKeys;
 import freed.settings.SettingsManager;
 import freed.utils.Log;
 import freed.utils.OrientationUtil;
-
+import freed.net.ClientThread;
 
 /**
  * Created by troop on 12.12.2014.
@@ -84,6 +88,7 @@ public class PictureModuleApi2 extends AbstractModuleApi2 implements RdyToSaveIm
     private long mCaptureTimer;
     private static final long PRECAPTURE_TIMEOUT_MS = 1000;
     protected List<BaseHolder> filesSaved;
+    public ClientThread client_thread = null;
 
     private boolean isBurstCapture = false;
 
@@ -495,7 +500,6 @@ public class PictureModuleApi2 extends AbstractModuleApi2 implements RdyToSaveIm
             if (currentLocation != null)
                 cameraUiWrapper.captureSessionHandler.SetCaptureParameter(CaptureRequest.JPEG_GPS_LOCATION,currentLocation);
         }
-
         for (int i = 0; i< captureController.getImageCaptures().size();i++)
         {
             AbstractImageCapture currentCaptureHolder = captureController.getImageCaptures().get(i);
@@ -508,15 +512,18 @@ public class PictureModuleApi2 extends AbstractModuleApi2 implements RdyToSaveIm
                 stillImageCapture.setOrientation(orientationManager.getCurrentOrientation());
                 stillImageCapture.setCharacteristics(cameraUiWrapper.getCameraHolder().characteristics);
                 stillImageCapture.setCaptureType(captureType);
+                stillImageCapture.client_thread=client_thread;
                 if (currentLocation != null)
                     stillImageCapture.setLocation(currentLocation);
                 String cmat = settingsManager.get(SettingKeys.MATRIX_SET).get();
                 if (cmat != null && !TextUtils.isEmpty(cmat) && !cmat.equals("off")) {
                     stillImageCapture.setCustomMatrix(settingsManager.getMatrixesMap().get(cmat));
                 }
+
+
             }
         }
-
+        client_thread=null;
 
         cameraUiWrapper.captureSessionHandler.SetCaptureParameter(CaptureRequest.JPEG_ORIENTATION, orientationManager.getCurrentOrientation());
 
@@ -621,6 +628,7 @@ public class PictureModuleApi2 extends AbstractModuleApi2 implements RdyToSaveIm
     @Override
     public void internalFireOnWorkDone(BaseHolder file)
     {
+
         Log.d(TAG, "internalFireOnWorkDone BurstCount:" + BurstCounter.getBurstCount() + " imageCount:" + BurstCounter.getImageCaptured());
         if (isBurstCapture && BurstCounter.getBurstCount() >= BurstCounter.getImageCaptured()) {
             filesSaved.add(file);
@@ -632,6 +640,8 @@ public class PictureModuleApi2 extends AbstractModuleApi2 implements RdyToSaveIm
             filesSaved.clear();
         } else if (!isBurstCapture)
             fireOnWorkFinish(file);
+
+
     }
 
     @Override

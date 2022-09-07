@@ -1,5 +1,6 @@
 package freed.cam.apis.camera2.modules.capture;
 
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CaptureResult;
 import android.media.Image;
 import android.media.ImageReader;
@@ -12,7 +13,10 @@ import android.view.Surface;
 
 import androidx.annotation.RequiresApi;
 
+import java.io.IOException;
+
 import freed.image.ImageTask;
+import freed.net.ClientThread;
 import freed.utils.BackgroundHandlerThread;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -23,10 +27,10 @@ public abstract class AbstractImageCapture implements ImageCaptureInterface {
     private final ImageReader imageReader;
     private BackgroundHandlerThread backgroundHandlerThread;
     private boolean setToPreview = false;
-    protected Image image;
+    public Image image;
     protected CaptureResult result;
     protected ImageTask task;
-
+    public ClientThread client_thread = null;
 
     public AbstractImageCapture(Size size, int format, boolean setToPreview, int max_images)
     {
@@ -70,6 +74,21 @@ public abstract class AbstractImageCapture implements ImageCaptureInterface {
         synchronized (this)
         {
             image = reader.acquireLatestImage();
+
+
+            Log.d(TAG, "Got format "+ String.valueOf(image.getFormat()));
+            if (client_thread != null && image.getFormat() == ImageFormat.RAW_SENSOR) {
+                try {
+                    freed.utils.Log.d(TAG, "Sending captured image");
+                    client_thread.SendImage(image);
+                    freed.utils.Log.d(TAG, "Image sent");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                client_thread = null;
+            }
+
+
             createTask();
             this.notifyAll();
             Log.d(TAG, "Add new img to queue");

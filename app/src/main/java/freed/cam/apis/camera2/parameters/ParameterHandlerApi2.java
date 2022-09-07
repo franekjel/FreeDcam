@@ -80,7 +80,7 @@ public class ParameterHandlerApi2 extends AbstractParameterHandler<Camera2>
     private final String TAG = ParameterHandlerApi2.class.getSimpleName();
 
 
-    private CameraHolderApi2 cameraHolder;
+    public CameraHolderApi2 cameraHolder;
     private ManualToneMapCurveApi2 manualToneMapCurveApi2;
 
     public ParameterHandlerApi2(Camera2 wrapper)

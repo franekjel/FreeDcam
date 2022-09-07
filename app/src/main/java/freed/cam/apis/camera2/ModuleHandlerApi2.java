@@ -32,6 +32,7 @@ import freed.cam.apis.camera2.modules.PictureModuleApi2;
 import freed.cam.apis.camera2.modules.VideoModuleApi2;
 import freed.settings.Frameworks;
 import freed.settings.SettingKeys;
+import freed.utils.Log;
 
 /**
  * Created by troop on 12.12.2014.
@@ -49,6 +50,7 @@ public class ModuleHandlerApi2 extends ModuleHandlerAbstract<Camera2>
     {
         PictureModuleApi2 pictureModuleApi2 = new PictureModuleApi2(cameraUiWrapper,mBackgroundHandler,mainHandler);
         moduleList.put(pictureModuleApi2.ModuleName(), pictureModuleApi2);
+        Log.d("AAAAA", pictureModuleApi2.ModuleName());
         IntervalApi2 intervalModule = new IntervalApi2(cameraUiWrapper,mBackgroundHandler,mainHandler);
         moduleList.put(intervalModule.ModuleName(), intervalModule);
         VideoModuleApi2 videoModuleApi2 = new VideoModuleApi2(cameraUiWrapper,mBackgroundHandler,mainHandler);

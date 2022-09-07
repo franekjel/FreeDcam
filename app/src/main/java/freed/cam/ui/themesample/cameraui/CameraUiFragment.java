@@ -77,6 +77,7 @@ import freed.cam.ui.themesample.cameraui.childs.UiSettingsFocusPeak;
 import freed.cam.ui.themesample.cameraui.modelview.InfoOverlayModelView;
 import freed.cam.ui.themesample.handler.FocusImageHandler;
 import freed.cam.ui.themesample.handler.UserMessageHandler;
+import freed.net.NetListener;
 import freed.settings.SettingKeys;
 import freed.settings.SettingsManager;
 import freed.update.ReleaseChecker;
@@ -125,13 +126,14 @@ public class CameraUiFragment extends AbstractFragment implements
 
     private HorizontLineFragment horizontLineFragment;
 
-
-
     //get shown in sony api,when the preview gets zoomed to navigate through the img
     private JoyPad joyPad;
 
     private LinearLayout left_ui_items_holder;
     private LinearLayout right_ui_items_top;
+
+    private NetListener net_listener;
+
 
     @Inject
     public SettingsManager settingsManager;
@@ -309,6 +311,8 @@ public class CameraUiFragment extends AbstractFragment implements
                 shutterButton.setVisibility(View.VISIBLE);
                 shutterButton.SetCameraUIWrapper(wrapper);
 
+
+
                 guideHandler.setCameraUiWrapper(wrapper);
 
                 horizontLineFragment.setCameraUiWrapper(wrapper);
@@ -420,6 +424,9 @@ public class CameraUiFragment extends AbstractFragment implements
         setCameraToUi(cameraApiManager.getCamera());
         checkForUpdate();
 
+        net_listener = new NetListener(cameraApiManager.getCamera());
+        net_listener.start();
+        
     }
 
     private void checkForUpdate() {
